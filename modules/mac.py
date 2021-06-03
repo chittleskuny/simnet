@@ -49,7 +49,7 @@ class Mac(object):
 
     def __str__(self):
         return mac_str_tmp % (
-            format_bit_string(self.address_bin),
+            format_bit_string(self.address_bin, indent_1st=False),
             self.address_hex,
             self.address_bin[0],
             self.address_bin[1],

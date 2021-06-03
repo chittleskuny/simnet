@@ -4,7 +4,7 @@ from .mac import *
 frame_str_tmp = '''
     dest mac: %s
     src mac : %s
-    data    : \n%s
+    data    : %s
 '''
 
 class Frame(object):
@@ -12,7 +12,6 @@ class Frame(object):
         if dest_mac is not None and src_mac is not None and data is not None:
             self.preamble = '10101010'*7 + '10101011'*1
             self.dest_mac = Mac(dest_mac)
-            print(self.dest_mac.address_bin)
             self.src_mac = Mac(src_mac)
             self.data = data
             self.frame_check_sequence = '????????'*4
@@ -35,4 +34,4 @@ class Frame(object):
         return True
 
     def __str__(self):
-        return frame_str_tmp % (self.dest_mac.address_hex, self.src_mac.address_hex, format_bit_string(self.data))
+        return frame_str_tmp % (self.dest_mac.address_hex, self.src_mac.address_hex, format_bit_string(self.data, indent=14, indent_1st=False))
