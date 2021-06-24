@@ -1,35 +1,49 @@
+from modules.formatter import *
+from modules.mac import *
+from modules.frame import *
+
 class TCPIP(object):
     def __init__(self):
         pass
 
     # desc: 4->3->2->1
 
-    def desc_4_application_layer(self, data):
-        return '|'.join(['head_4', data])
+    def desc_4_application_layer(self, input):
+        output = input
+        return output
 
-    def desc_3_transport_layer(self, data):
-        return '|'.join(['head_3', data])
+    def desc_3_transport_layer(self, input):
+        output = input
+        return output
 
-    def desc_2_internet_layer(self, data):
-        return '|'.join(['head_2', data])
+    def desc_2_internet_layer(self, input):
+        output = input
+        return output
 
-    def desc_1_network_access_layer(self, data):
-        
-        return '|'.join(['head_1', data])
+    def desc_1_network_access_layer(self, input):
+        data = '00000000'
+        frame = Frame(dest_mac='00:00:00:00:00:00', src_mac='00:00:00:00:00:00', data=data)
+        output = frame.bit_string
+        return output
 
     # asc:  1->2->3->4
 
-    def asc_1_network_access_layer(self, head_body):
-        return head_body.split('|', 1)[1]
+    def asc_1_network_access_layer(self, input):
+        frame = Frame(bit_string=input)
+        output = frame.data
+        return output
 
-    def asc_2_internet_layer(self, head_body):
-        return head_body.split('|', 1)[1]
+    def asc_2_internet_layer(self, input):
+        output = input
+        return output
 
-    def asc_3_transport_layer(self, head_body):
-        return head_body.split('|', 1)[1]
+    def asc_3_transport_layer(self, input):
+        output = input
+        return output
 
-    def asc_4_application_layer(self, head_body):
-        return head_body.split('|', 1)[1]
+    def asc_4_application_layer(self, input):
+        output = input
+        return output
 
 
 if __name__ == '__main__':
@@ -59,5 +73,3 @@ if __name__ == '__main__':
     print(asc_output_3)
     asc_output_4 = tcpip.asc_4_application_layer(asc_output_3)
     print(asc_output_4)
-
-
