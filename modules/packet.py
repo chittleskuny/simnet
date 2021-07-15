@@ -1,4 +1,5 @@
 from .formatter import format_bit_string
+from .ip import *
 
 version_numbers = [
     None,    #0
@@ -78,13 +79,55 @@ class Packet(object):
 
             self.header_checksum = '00000000'*2
 
-            self.src_address = src_address
-            self.dest_address = dest_address
+            self.src_address = Ip(src_address)
+            self.dest_address = Ip(dest_address)
             self.data = data
             self.total_length = self.internet_header_length + len(data)
 
+            if self.version == 4:
+                self.bit_string = self.bit_string_v4()
+            if self.version == 6:
+                self.bit_string = self.bit_string_v6()
+
         if bit_string is not None:
             self.bit_string = bit_string
+
+    def bit_string_v4(self):
+        bit_string_list = [
+
+            # 4*8*1
+            bin(self.version)[2:].rjust(4, '0'),
+            bin(self.internet_header_length)[2:].rjust(4, '0'),
+            self.type_of_service,
+            bin(self.total_length)[2:].rjust(16, '0'),
+
+            # 4*8*2
+            bin(self.identification)[2:].rjust(16, '0'),
+            self.flags,
+            bin(self.fragment_offset)[2:].rjust(13, '0'),
+
+            # 4*8*3
+            self.time_to_live,
+            self.protocol,
+            self.header_checksum,
+
+            # 4*8*4
+            self.src_address.address_bin,
+
+            # 4*8*5
+            self.dest_address.address_bin,
+
+            # 4*8*5 or 4*8*6
+            self.options, self.padding,
+
+            # others
+            self.data
+
+        ]
+        return ''.join(bit_string_list)
+
+    def bit_string_v6(self):
+        pass
 
     def __str__(self):
         return packet_str_tmp % (
@@ -98,8 +141,8 @@ class Packet(object):
             self.time_to_live,
             self.protocol,
             format_bit_string(self.header_checksum),
-            format_bit_string(self.src_address),
-            format_bit_string(self.dest_address),
+            self.src_address.address,
+            self.dest_address.address,
             self.options,
             format_bit_string(self.data),
         )

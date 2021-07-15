@@ -18,11 +18,13 @@ class Ip(object):
             self.address_dec = address
             self.address_bin = self.from_dec_to_bin()
             self.address_hex = None
+            self.address = self.address_dec
         if address.find(':') != -1:
             self.version = 6
             self.address_hex = address
             self.address_bin = self.from_hex_to_bin()
             self.address_dec = None
+            self.address = self.address_hex
 
     def from_bin_to_dec(self):
         pass
