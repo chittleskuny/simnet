@@ -1,6 +1,6 @@
 from modules.formatter import *
-from modules.mac import *
 from modules.frame import *
+from modules.packet import *
 
 class TCPIP(object):
     def __init__(self):
@@ -17,12 +17,28 @@ class TCPIP(object):
         return output
 
     def desc_2_internet_layer(self, input):
-        output = input
+        data = '00000000'
+        packet = Packet(
+            version=4,
+            id=1,
+            dont_fragment=0,
+            more_fragment=0,
+            fragment_offset=1,
+            time_to_live='00000000',
+            protocol='00000000',
+            src_address='192.168.1.1',
+            dest_address='192.168.1.2',
+            data=data,
+        )
+        output = packet.bit_string
         return output
 
     def desc_1_network_access_layer(self, input):
-        data = '00000000'
-        frame = Frame(dest_mac='00:00:00:00:00:00', src_mac='00:00:00:00:00:00', data=data)
+        frame = Frame(
+            dest_mac='00:00:00:00:00:00',
+            src_mac='00:00:00:00:00:00',
+            data=input
+        )
         output = frame.bit_string
         return output
 
@@ -34,7 +50,8 @@ class TCPIP(object):
         return output
 
     def asc_2_internet_layer(self, input):
-        output = input
+        packet = Packet(bit_string=input)
+        output = packet.data
         return output
 
     def asc_3_transport_layer(self, input):

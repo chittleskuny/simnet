@@ -13,6 +13,19 @@ ipv6_str_tmp = '''
 
 class Ip(object):
     def __init__(self, address):
+        if len(address) == 32:
+            self.version = 4
+            self.address_bin = address
+            self.address_dec = self.from_bin_to_dec()
+            self.address_hex = None
+            self.address = self.address_dec
+        if len(address) == 128:
+            self.version = 6
+            self.address_bin = address
+            self.address_hex = self.from_bin_to_hex()
+            self.address_dec = None
+            self.address = self.address_hex
+
         if address.find('.') != -1:
             self.version = 4
             self.address_dec = address
@@ -27,10 +40,26 @@ class Ip(object):
             self.address = self.address_hex
 
     def from_bin_to_dec(self):
-        pass
+        address_bin_list = [
+            str(int(self.address_bin[0:8], 2)),
+            str(int(self.address_bin[8:16], 2)),
+            str(int(self.address_bin[16:24], 2)),
+            str(int(self.address_bin[24:], 2)),
+        ]
+        return '.'.join(address_bin_list)
 
     def from_bin_to_hex(self):
-        pass
+        address_bin_list = [
+            hex(int(self.address_bin[0:16], 2))[2:],
+            hex(int(self.address_bin[16:32], 2))[2:],
+            hex(int(self.address_bin[32:48], 2))[2:],
+            hex(int(self.address_bin[48:64], 2))[2:],
+            hex(int(self.address_bin[64:80], 2))[2:],
+            hex(int(self.address_bin[80:96], 2))[2:],
+            hex(int(self.address_bin[96:112], 2))[2:],
+            hex(int(self.address_bin[112:], 2))[2:],
+        ]
+        return ':'.join(address_bin_list)
 
     def from_dec_to_bin(self):
         address_bin_list = []

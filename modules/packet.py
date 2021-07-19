@@ -84,50 +84,80 @@ class Packet(object):
             self.data = data
             self.total_length = self.internet_header_length + len(data)
 
-            if self.version == 4:
-                self.bit_string = self.bit_string_v4()
-            if self.version == 6:
-                self.bit_string = self.bit_string_v6()
+            self.bit_string = self.bit_string_concat()
 
         if bit_string is not None:
             self.bit_string = bit_string
+            self.bit_string_parse()
 
-    def bit_string_v4(self):
-        bit_string_list = [
+    def bit_string_concat(self):
+        if self.version == 4:
+            bit_string_list = [
 
-            # 4*8*1
-            bin(self.version)[2:].rjust(4, '0'),
-            bin(self.internet_header_length)[2:].rjust(4, '0'),
-            self.type_of_service,
-            bin(self.total_length)[2:].rjust(16, '0'),
+                # 4*8*1
+                bin(self.version)[2:].rjust(4, '0'),
+                bin(self.internet_header_length)[2:].rjust(4, '0'),
+                self.type_of_service,
+                bin(self.total_length)[2:].rjust(16, '0'),
 
-            # 4*8*2
-            bin(self.identification)[2:].rjust(16, '0'),
-            self.flags,
-            bin(self.fragment_offset)[2:].rjust(13, '0'),
+                # 4*8*2
+                bin(self.identification)[2:].rjust(16, '0'),
+                self.flags,
+                bin(self.fragment_offset)[2:].rjust(13, '0'),
 
-            # 4*8*3
-            self.time_to_live,
-            self.protocol,
-            self.header_checksum,
+                # 4*8*3
+                self.time_to_live,
+                self.protocol,
+                self.header_checksum,
 
-            # 4*8*4
-            self.src_address.address_bin,
+                # 4*8*4
+                self.src_address.address_bin,
 
-            # 4*8*5
-            self.dest_address.address_bin,
+                # 4*8*5
+                self.dest_address.address_bin,
 
-            # 4*8*5 or 4*8*6
-            self.options, self.padding,
+                # 4*8*5 or 4*8*6
+                self.options, self.padding,
 
-            # others
-            self.data
+                # others
+                self.data
 
-        ]
-        return ''.join(bit_string_list)
+            ]
+            return ''.join(bit_string_list)
 
-    def bit_string_v6(self):
-        pass
+        if self.version == 6:
+            return None
+
+        return None
+
+    def bit_string_parse(self):
+        self.version = int(self.bit_string[:4], 2)
+        
+        if self.version == 4:
+            self.internet_header_length = int(self.bit_string[4:8], 2)
+            self.type_of_service = self.bit_string[8:16]
+            self.total_length = int(self.bit_string[16:32], 2)
+            self.identification = int(self.bit_string[32:48], 2)
+            self.flags = self.bit_string[48:51]
+            self.fragment_offset = int(self.bit_string[51:64], 2)
+            self.time_to_live = self.bit_string[64:72]
+            self.protocol = self.bit_string[72:80]
+            self.header_checksum = self.bit_string[80:96]
+            self.src_address = Ip(self.bit_string[96:128])
+            self.dest_address = Ip(self.bit_string[128:160])
+
+            if self.internet_header_length == 5:
+                self.options = ''
+                self.padding = ''
+                self.data = self.bit_string[160:]
+
+            if self.internet_header_length == 6:
+                self.options = self.bit_string[160:192]
+                self.padding = ''
+                self.data = self.bit_string[192:]
+
+        if self.version == 6:
+            pass
 
     def __str__(self):
         return packet_str_tmp % (
